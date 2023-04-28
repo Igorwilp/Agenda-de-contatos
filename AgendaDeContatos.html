@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda top</title>
+    <style>
+        *{
+    padding: 0;
+    margin: 0;
+}
+
+main {
+    padding: 10px;
+    height: 80vh;
+}
+
+form {
+    margin: 10px;
+    border: 1px solid red;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 1px 1px red;
+    text-align: center;
+}
+
+input {
+    font-size: 15px;
+    margin-bottom: 5px;
+    border-radius: 10px;
+}
+
+input[type="text"]{
+    padding: 5px;
+    outline: none;
+    width: 90%;
+}
+
+input[type="submit"]{
+    padding: 5px 10px;
+    margin-bottom: 10px;
+    background-color: lightgreen;
+    width: 50%;
+}
+
+.list{
+    padding: 10px;
+    margin-top: 15px;
+    height: 50%;
+    background-color: lightyellow ;
+}
+
+ul{
+    list-style: none;
+    font-family: 'Times New Roman', Times, serif;
+    overflow: scroll;
+    height: 100%;
+}
+
+li{
+    margin-top: 10px;
+    border-bottom: 3px solid black;
+}
+
+button{
+    margin-left: 10px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: black;
+}
+
+    </style>
+</head>
+<body>
+    <main>
+        <form>
+            <input name="Nome" type="text" maxlength="100" placeholder="Digite o nome" required/>
+            <input name="Telefone" type="text" maxlength="15" placeholder="Digite o telefone" required/>
+            <input name="Email" type="text" maxlength="50" placeholder="Digite o email" required/>
+            <input type="submit" value="Salvar"/>
+            <input type="hidden" name="Id"/>
+        </form>
+        <div class="list">
+            <input id="pesquisa" type="text" placeholder="Pesquisar" onkeyup="listar(this.value)"/>
+            <ul>
+
+            </ul>
+        </div>
+
+    </main>
+
+    <script>
+        let lista = localStorage.getItem("minhaLista");
+        const formulario = document.querySelector("form");
+        const ulPessoas = document.querySelector("ul");
+
+
+        
+        if(lista) {
+            lista = JSON.parse(lista);
+        } else {
+            lista = [];
+        }
+
+        listar();
+
+        function salvarLista(lista) {
+            localStorage.setItem("minhaLista", JSON.stringify(lista))
+        }
+
+        formulario.addEventListener("submit", function (e){
+            e.preventDefault();
+            let novaPessoa = new Object();
+            novaPessoa.Nome = this.Nome.value;
+            novaPessoa.Telefone = this.Telefone.value;
+            novaPessoa.Email = this.Email.value;
+
+            if(this.Id.value !== "" && this.Id.value >=0){
+                lista[this.Id.value] = novaPessoa;
+            } else {
+            lista.push(novaPessoa);
+            }
+
+            this.reset();
+
+            salvarLista();
+
+            listar();
+        })
+
+        function listar(filtro='') {
+            ulPessoas.innerHTML = "";
+            lista.forEach((item, key) => {
+                if(item.Nome.toUpperCase().indexOf(filtro.toUpperCase()) >= 0 || filtro ==""){
+
+                    linha = document.createElement('li');
+
+                    let s = `<button onclick="excluir(${key})">[Excluir]</button>
+                         <button onClick="editar(${key})">[Editar]</button>` 
+
+                    linha.innerHTML = "Nome: " + item.Nome + "    Email: " + item.Email + "    Telefone " + item.Telefone + s;
+                    ulPessoas.appendChild(linha);
+                }
+            })
+        }
+
+        function excluir(Id) {
+            formulario.reset();
+            lista.splice(Id, 1);
+            salvarLista();
+            listar();
+        }
+
+        function editar(Id) {
+            formulario.Id.value = Id;
+            formulario.Nome.value = lista[Id].Nome;
+            formulario.Telefone.value = lista[Id].Telefone;
+            formulario.Email.value = lista[Id].Telefone;
+        }
+    </script>
+</body>
+</html>
